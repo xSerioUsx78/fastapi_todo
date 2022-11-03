@@ -1,19 +1,16 @@
-from typing import List
 from fastapi import APIRouter
-from settings.database import database
+from utils.schemas import Page
 from . import schemas
 from . import services
-
-collection = database.get_collection('todo')
 
 router = APIRouter(
     prefix="/todo",
     tags=['todo']
 )
 
-@router.get("/", response_model=List[schemas.Todo])
+@router.get("/", response_model=Page[schemas.Todo])
 def todo_list():
-    return services.get_todo_list_service()
+    return services.get_paginated_todo_service()
 
 
 @router.post("/", response_model=schemas.Todo)
@@ -28,5 +25,4 @@ def todo_update(todo: schemas.UpdateTodo, pk):
 
 @router.delete("/{pk}/")
 def todo_delete(pk):
-    services.delete_todo_service(pk)
-    return pk
+    return services.delete_todo_service(pk)

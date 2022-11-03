@@ -1,5 +1,8 @@
-from pydantic import BaseModel, Field
+from typing import Sequence, Generic
+from pydantic import BaseModel, Field, conint
 from bson.objectid import ObjectId
+from fastapi_pagination import Page as FastApiPaginationPage, Params
+from fastapi_pagination.bases import AbstractParams, BasePage, T
 from .objectid import PyObjectId
 
 
@@ -17,3 +20,27 @@ class ObjectIDModelBase(BaseModel):
 
 class ObjectIDModel(ObjectIDModelBase, ObjectIDConfig):
     pass
+
+
+class Page(ObjectIDConfig, BasePage[T], Generic[T]):
+    page: conint(ge=1)  # type: ignore
+    size: conint(ge=1)  # type: ignore
+
+    __params_type__ = Params
+
+    @classmethod
+    def create(
+        cls,
+        items: Sequence[T],
+        total: int,
+        params: AbstractParams,
+    ) -> FastApiPaginationPage[T]:
+        if not isinstance(params, Params):
+            raise ValueError("Page should be used with Params")
+
+        return cls(
+            total=total,
+            items=items,
+            page=params.page,
+            size=params.size,
+        )

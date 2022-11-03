@@ -33,18 +33,16 @@ def user_register(data: schemas.UserRegister):
 )
 async def user_login(form_data: OAuth2PasswordRequestForm = Depends()):
     user = collection.find_one({'username': form_data.username})
-    if not user:
-        raise HTTPException(
+    auth_exception = HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Incorrect username or password."
         )
+    if not user:
+        raise auth_exception
 
     hashed_pass = user['password']
     if not utils.verify_password(form_data.password, hashed_pass):
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Incorrect username or password."
-        )
+        raise auth_exception
     
     return {
         'user': user,

@@ -1,7 +1,7 @@
-from typing import List
 from pymongo import ReturnDocument
 from pymongo.results import InsertOneResult
 from pymongo.typings import _DocumentType
+from fastapi_pagination.ext.pymongo import paginate
 from settings.database import database
 from utils.objectid import PyObjectId
 from . import schemas
@@ -10,11 +10,8 @@ from . import schemas
 collection = database.get_collection('todo')
 
 
-def get_todo_list_service() -> List:
-    data = []
-    for obj in collection.find({}):
-        data.append(obj)
-    return data
+def get_paginated_todo_service():
+    return paginate(collection)
 
 
 def create_todo_service(todo: schemas.CreateTodo) -> InsertOneResult:
@@ -28,6 +25,6 @@ def update_todo_service(todo: schemas.UpdateTodo, pk: int) -> _DocumentType:
     }, return_document=ReturnDocument.AFTER)
 
 
-def delete_todo_service(pk: int) -> None:
+def delete_todo_service(pk: int) -> int:
     collection.find_one_and_delete({'_id': PyObjectId(pk)})
-    return None
+    return pk

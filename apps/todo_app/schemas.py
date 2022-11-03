@@ -1,12 +1,12 @@
 from pydantic import BaseModel, constr
-from utils.schemas import ObjectIDModel
+from utils.schemas import ObjectIDModelBase
 
 
 class BaseTodo(BaseModel):
     pass
 
 
-class Todo(BaseTodo, ObjectIDModel):
+class Todo(BaseTodo, ObjectIDModelBase):
     title: str
     description: str
 
